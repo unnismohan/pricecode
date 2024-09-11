@@ -3,36 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Price Encoder/Decoder with Camera</title>
+    <title>Price Encoder</title>
     <style>
         body { font-family: Arial, sans-serif; }
         #output { margin-top: 20px; }
-        video { width: 100%; height: auto; }
-        #canvas { display: none; }
     </style>
-    <!-- Tesseract.js library for OCR -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
 </head>
 <body>
     <h1>Price Encoder/Decoder</h1>
     <label for="price">Enter Actual Price:</label>
     <input type="text" id="price" placeholder="Enter price to encode">
     <button onclick="encodePrice()">Encode</button>
-
+    
     <br><br>
-
+    
     <label for="encoded">Enter Encoded Price:</label>
     <input type="text" id="encoded" placeholder="Enter encoded price">
     <button onclick="decodePrice()">Decode</button>
-    
-    <br><br>
-    
-    <h2>Scan Encoded Price Using Camera</h2>
-    <button onclick="startCamera()">Start Camera</button>
-    <video id="video" autoplay></video>
-    <button onclick="captureImage()">Capture and Decode</button>
-    
-    <canvas id="canvas"></canvas>
     
     <div id="output"></div>
 
@@ -56,54 +43,6 @@
                 decodedPrice += decodingMap[encoded[i]] || '';
             }
             document.getElementById("output").innerText = `Decoded Price: ${decodedPrice}`;
-        }
-
-        // Camera and OCR functions
-        let videoStream;
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-
-        // Start camera function
-        function startCamera() {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then((stream) => {
-                    video.srcObject = stream;
-                    videoStream = stream;
-                })
-                .catch((err) => {
-                    console.error("Error accessing camera: ", err);
-                });
-        }
-
-        // Capture image and decode using Tesseract.js
-        function captureImage() {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = canvas.toDataURL('image/png');
-            
-            // Use Tesseract.js to scan the image for text
-            Tesseract.recognize(
-                imageData,
-                'eng',
-                { logger: (m) => console.log(m) }  // Optional: log progress
-            ).then(({ data: { text } }) => {
-                console.log("Scanned text: ", text.trim());
-                // Decode the scanned text
-                decodeScannedText(text.trim());
-            }).catch((err) => {
-                console.error("Error during OCR: ", err);
-            });
-        }
-
-        // Decode scanned text
-        function decodeScannedText(scannedText) {
-            let decodedPrice = '';
-            for (let i = 0; i < scannedText.length; i++) {
-                decodedPrice += decodingMap[scannedText[i].toUpperCase()] || '';
-            }
-            document.getElementById("output").innerText = `Decoded Price from Camera: ${decodedPrice}`;
         }
     </script>
 </body>
